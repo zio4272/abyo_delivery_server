@@ -4,7 +4,7 @@ from flask_script import Manager
 from delivery import create_app, db
 from delivery.models import *
 
-app = create_app('DevelopmentConfig')
+app = create_app('ProductionConfig')
 
 manager = Manager(app)
 
@@ -12,6 +12,11 @@ manager = Manager(app)
 def runserver():
     """Run Test Server"""
     app.run(host='0.0.0.0')
+
+@manager.command
+def debug():
+    app.config.from_object('delivery.config.DevelopmentConfig')
+    app.run()
 
 @manager.command
 def init_db():
