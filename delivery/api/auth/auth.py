@@ -6,7 +6,7 @@ from flask_restful_swagger_2 import swagger
 from delivery import db
 from delivery.swagger import ResponseModel
 from delivery.utils import RestfulType
-from delivery.models import Users, BankCode
+from delivery.models import Users
 
 from .utils import encode_token, decode_token
 
@@ -22,9 +22,6 @@ signup_parser.add_argument('email', type=str, required=True, location='form')
 signup_parser.add_argument('address', type=str, location='form')
 signup_parser.add_argument('longitude', type=float, location='form')
 signup_parser.add_argument('latitude', type=float, location='form')
-
-signup_parser.add_argument('bank_code', type=int, location='form')
-signup_parser.add_argument('bank_account', type=str, location='form')
 
 signup_parser.add_argument('type', type=RestfulType.user_type,\
     required=True, location='form')
@@ -70,18 +67,6 @@ class Auth(Resource):
                 'in': 'formData',
                 'type': 'string'
             }, {
-                'name': 'bank_code',
-                'description': '은행 코드',
-                'in': 'formData',
-                'type': 'integer',
-                'required': True
-            }, {
-                'name': 'bank_account',
-                'description': '은행 계좌번호',
-                'in': 'formData',
-                'type': 'string',
-                'required': True
-            }, {
                 'name': 'longitude',
                 'description': '유저의 주소 경도',
                 'in': 'formData',
@@ -115,8 +100,6 @@ class Auth(Resource):
                                 'email': 'some value',
                                 'phone': 'some value',
                                 'type': 'some value',
-                                'bank_code': 123,
-                                'bank_account': 'some value',
                                 'latitude': 'some value',
                                 'longitude': 'some value',
                                 'address': 'some value'
@@ -165,11 +148,6 @@ class Auth(Resource):
             return {
                 'code': 400,
                 'message': '이메일 값이 올바르지 않습니다.'
-            }, 400
-        elif not BankCode.query.filter_by(id=args['bank_code']).first():
-            return {
-                'code': 400,
-                'message': '존재하지 않는 은행코드 입니다.'
             }
 
         user = Users.query.filter_by(user_id=args['user_id']).first()
@@ -199,8 +177,6 @@ class Auth(Resource):
         new_user.name = args['name']
         new_user.email = args['email']
         new_user.phone = args['phone']
-        new_user.bank_code = args['bank_code']
-        new_user.bank_account = args['bank_account']
         new_user.type = args['type']
 
         if args['latitude']:
@@ -217,15 +193,15 @@ class Auth(Resource):
             'code': 201,
             'message': '회원가입 성공입니다.',
             'data': {
-                'user': {
+                'user': { 
                     'id': new_user.id,
                     'user_id': new_user.user_id,
                     'name': new_user.name,
                     'email': new_user.email,
                     'phone': new_user.phone,
                     'type': new_user.type,
-                    'latitude': new_user.latitude,
-                    'longitude': new_user.longitude,
+                    'latitude': float(new_user.latitude),
+                    'longitude': float(new_user.longitude),
                     'address': new_user.address
                 },
                 'token': encode_token(new_user)

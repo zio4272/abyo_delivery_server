@@ -21,9 +21,6 @@ class Users(db.Model):
     longitude = db.Column(db.Numeric(15, 10), nullable=False, default=0)
     address = db.Column(db.String(255))
 
-    bank_code = db.Column(db.Integer, db.ForeignKey('bank_code.id'))
-    bank_account = db.Column(db.String(64))
-
     type = db.Column(db.Enum('WORKER', 'OWNER'), nullable=False)
 
     profile_image_key = db.Column(db.String(320), nullable=True)
@@ -32,7 +29,6 @@ class Users(db.Model):
     
     banned = db.relationship('BannedUsers', backref='users', lazy=True)
     serial = db.relationship('UserSerials', backref='users', lazy=True)
-    bank_code = db.relationship('BankCode', backref='users', lazy=True)
    
     @staticmethod
     def generate_password_hash(password):
@@ -54,44 +50,6 @@ class Users(db.Model):
 
     def verify_password(self, password):
         return self.check_password_hash(self.password_hashed, password)
-
-    def get_user_object(self, simpler_format=False, include_crimes=False, complex_format=False):
-        user = {
-            'id': self.id,
-            'user_id': self.user_id,
-            'name': self.name,
-            'email': self.email,
-            'phone': self.phone,
-            'bank_code': self.bank_code,
-            'bank_account': self.bank_account,
-            'type': self.type,
-            'latitude': float(self.latitude) if self.latitude else None,
-            'longitude': float(self.longitude) if self.longitude else None,
-            'address': self.address,
-            'profile_image': 'https://s3.ap-northeast-2.amazonaws.com/delivery-resource/{}'.format(self.profile_image_key)\
-                if self.profile_image_key else None
-        }
-
-        if simpler_format:
-            user.pop('latitude', None)
-            user.pop('longitude', None)
-            user.pop('address', None)
-            user.pop('type', None)
-
-        if complex_format:
-            user['banned'] = str(self.banned.banned_at) if self.banned else None
-
-        if include_crimes:
-            user['crimes'] = [
-                {
-                    'id': crime.id,
-                    'name': crime.name,
-                    'sentence': crime.sentence,
-                    'date': str(crime.date)
-                } for crime in self.crimes
-            ]
-
-        return user
     
     @staticmethod
     def verify_phone_number(phone_number):
