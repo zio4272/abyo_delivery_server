@@ -1,5 +1,7 @@
 # -*- coding:utf8 -*-
+# pylint: disable=E1101
 import hashlib
+import re
 
 from delivery import db
 
@@ -12,6 +14,24 @@ class Users(db.Model):
     password_hashed = db.Column(db.String(32), nullable=False)
 
     name = db.Column(db.String(32), nullable=False)
+
+    phone = db.Column(db.String(13), nullable=False)
+    email = db.Column(db.String(320), nullable=False)
+
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    address = db.Column(db.String(255))
+
+    bank_name = db.Column(db.String(8))
+    bank_account = db.Column(db.String(64))
+
+    type = db.Column(db.Enum('WORKER', 'EMPLOYER'), nullable=False)
+    
+    banned = db.relationship('BannedUsers', backref='users', lazy=True)
+    serial = db.relationship('UserSerials', backref='users', lazy=True)
+
+    phone_pattern = re.compile(r'^[\d]{3}-[\d]{3,4}-[\d]{4}$')
+    email_pattern = re.compile(r'^[A-Z0-9a-z._%+-]{1,64}@[A-Za-z0-9.-]{2,}\\.[A-Za-z0-9.-]{2,}$')
 
     @staticmethod
     def generate_password_hash(password):
@@ -33,3 +53,9 @@ class Users(db.Model):
 
     def verify_password(self, password):
         return self.check_password_hash(self.password_hashed, password)
+    
+    def verify_phone_number(self, phone_number):
+        return self.phone_pattern.match(phone_number)
+
+    def verify_email(self, email):
+        return self.email_pattern.match(email)
