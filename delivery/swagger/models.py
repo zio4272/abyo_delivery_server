@@ -12,8 +12,11 @@ class ResponseModel(Schema):
             'type': 'integer',
             'format': 'int64'
         },
+        'message': {
+            'type': 'string'
+        },
         'data': {
             'type': 'object'
         },
     }
-    required = ['code', 'data']
+    required = ['code', 'message']

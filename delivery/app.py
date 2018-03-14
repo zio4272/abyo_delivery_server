@@ -13,9 +13,9 @@ def create_app(config_name):
 
     db.init_app(app)
 
-    api = Api(app, api_version='0.0', api_spec_url='/api/spec', title='delivery spec')
+    api = Api(app, api_version='0.0', api_spec_url='/api/spec', title='delivery spec', catch_all_404s=True)
 
-    from .auth import Auth
+    from .api.auth import Auth
     api.add_resource(Auth, '/auth')
 
     swaggerui_blueprint = get_swaggerui_blueprint('/api/docs', '/api/spec.json', config={'app_name': 'Delivery'})

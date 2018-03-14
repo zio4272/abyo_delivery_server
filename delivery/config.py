@@ -11,7 +11,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://rppt:dlstkrhk1q'+\
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:dlstkrhk1q'+\
     '@localhost/abyo_delivery'
 
 class ProductionConfig(Config):
@@ -31,4 +31,6 @@ class DevelopmentConfig(Config):
     For Development Config
     """
     DEBUG = True
+    JWT_SECRET = 'some secret key'
+    JWT_ALGORITHM = 'HS512'
     
