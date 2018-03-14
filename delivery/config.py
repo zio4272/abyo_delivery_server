@@ -29,4 +29,5 @@ class DevelopmentConfig(Config):
     For Development Config
     """
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://rppt:dlstkrhk1q@localhost/abyo_delivery'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://rppt:dlstkrhk1q'+\
+    '@localhost/abyo_delivery'
