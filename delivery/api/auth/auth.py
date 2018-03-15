@@ -68,6 +68,16 @@ class Auth(Resource):
                     }
                 }
             },
+            '403': {
+                'description': '정지된 유저',
+                'schema': ResponseModel,
+                'examples': {
+                    'application/json': {
+                        'code': 403,
+                        'message': '정지된 유저입니다.'
+                    }
+                }
+            },
             '404': {
                 'description': '올바르지 않은 조회',
                 'schema': ResponseModel,
@@ -153,8 +163,28 @@ class Auth(Resource):
                         }
                     }
                 }
+            },
+            '400': {
+                'description': '로그인 실패',
+                'schema': ResponseModel,
+                'examples': {
+                    'application/json': {
+                        'code': 400,
+                        'message': '올바르지 않은 아이디/패스워드입니다.'
+                    }
+                }
+            },
+            '403': {
+                'description': '정지된 유저',
+                'schema': ResponseModel,
+                'examples': {
+                    'application/json': {
+                        'code': 403,
+                        'message': '정지된 유저입니다.'
+                    }
+                }
             }
-        }  
+        }
     })
     def post(self):
         args = signin_parser.parse_args()
