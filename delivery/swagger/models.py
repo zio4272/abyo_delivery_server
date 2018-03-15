@@ -7,7 +7,7 @@ class EmailModel(Schema):
 
 class ResponseModel(Schema):
     type = 'object'
-    property = {
+    properties = {
         'code': {
             'type': 'integer',
             'format': 'int64'

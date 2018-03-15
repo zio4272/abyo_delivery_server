@@ -8,10 +8,7 @@ from delivery.swagger import ResponseModel
 from delivery.utils import RestfulType
 from delivery.models import Users
 
-from .utils import encode_token, decode_token
-
-token_parser = reqparse.RequestParser()
-token_parser.add_argument('X-http-token', type=str, location='headers', dest='token')
+from .utils import encode_token
 
 signin_parser = reqparse.RequestParser()
 signin_parser.add_argument('user_id', type=RestfulType.alphanumeric,\
@@ -31,96 +28,7 @@ signup_parser.add_argument('latitude', type=float, location='form')
 signup_parser.add_argument('type', type=RestfulType.user_type,\
     required=True, location='form')
 
-class Auth(Resource):
-    @swagger.doc({
-        'tags': ['user'],
-        'description': '토큰으로 유저 조회',
-        'parameters': [
-            {
-                'name': 'X-Http-Token',
-                'description': '유저 토큰',
-                'in': 'header',
-                'type': 'string',
-                'required': True
-            }
-        ],
-        'responses': {
-            '200': {
-                'description': '토큰으로 조회 성공',
-                'schema': ResponseModel,
-                'examples': {
-                    'application/json': {
-                        'code': 200,
-                        'message': '토큰 조회 성공',
-                        'data': {
-                            'user': {
-                                'id': 123,
-                                'user_id': 'some value',
-                                'name': 'some value',
-                                'email': 'some value',
-                                'phone': 'some value',
-                                'type': 'some value',
-                                'latitude': 'some value',
-                                'longitude': 'some value',
-                                'address': 'some value'
-                            }
-                        }
-                    }
-                }
-            },
-            '403': {
-                'description': '정지된 유저',
-                'schema': ResponseModel,
-                'examples': {
-                    'application/json': {
-                        'code': 403,
-                        'message': '정지된 유저입니다.'
-                    }
-                }
-            },
-            '404': {
-                'description': '올바르지 않은 조회',
-                'schema': ResponseModel,
-                'examples': {
-                    'application/json': {
-                        'code': 404,
-                        'message': '올바르지 않은 토큰입니다.'
-                    }
-                }
-            }
-        }  
-    })
-    def get(self):
-        args = token_parser.parse_args()
-        user = decode_token(args['token'])
-        if user:
-            if user.banned:
-                return {
-                    'code': 403,
-                    'message': '정지된 유저 입니다.'
-                }
-            return {
-                'code': 200,
-                'message': '토큰 조회 성공',
-                'data': {
-                    'user': {
-                        'id': user.id,
-                        'user_id': user.user_id,
-                        'name': user.name,
-                        'email': user.email,
-                        'phone': user.phone,
-                        'type': user.type,
-                        'latitude': float(user.latitude),
-                        'longitude': float(user.longitude),
-                        'address': user.address
-                    }
-                }
-            }, 200
-        return {
-            'code': 404,
-            'message': '올바르지 않은 토큰입니다.'
-        }, 404
-
+class Auth(Resource):    
     @swagger.doc({
         'tags': ['user'],
         'description': '로그인',
@@ -187,6 +95,7 @@ class Auth(Resource):
         }
     })
     def post(self):
+        """로그인 리퀘스트"""
         args = signin_parser.parse_args()
         user = Users.query.filter_by(user_id=args['user_id']).first()
         if user is not None:
@@ -318,6 +227,7 @@ class Auth(Resource):
         }
     })
     def put(self):
+        """회원가입 리퀘스트"""
         args = signup_parser.parse_args()
 
         if not (len(args['user_id']) >= 8 and len(args['user_id']) <= 16):
