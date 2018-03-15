@@ -10,6 +10,9 @@ from delivery.models import Users
 
 from .utils import encode_token, decode_token
 
+token_parser = reqparse.RequestParser()
+token_parser.add_argument('X-http-token', type=str, location='headers', dest='token')
+
 signin_parser = reqparse.RequestParser()
 signin_parser.add_argument('user_id', type=RestfulType.alphanumeric,\
     required=True, location='form')
@@ -29,6 +32,80 @@ signup_parser.add_argument('type', type=RestfulType.user_type,\
     required=True, location='form')
 
 class Auth(Resource):
+    @swagger.doc({
+        'tags': ['user'],
+        'description': '토큰으로 유저 조회',
+        'parameters': [
+            {
+                'name': 'X-Http-Token',
+                'description': '유저 토큰',
+                'in': 'header',
+                'type': 'string',
+                'required': True
+            }
+        ],
+        'responses': {
+            '200': {
+                'description': '토큰으로 조회 성공',
+                'schema': ResponseModel,
+                'examples': {
+                    'application/json': {
+                        'code': 200,
+                        'message': '토큰 조회 성공',
+                        'data': {
+                            'user': {
+                                'id': 123,
+                                'user_id': 'some value',
+                                'name': 'some value',
+                                'email': 'some value',
+                                'phone': 'some value',
+                                'type': 'some value',
+                                'latitude': 'some value',
+                                'longitude': 'some value',
+                                'address': 'some value'
+                            }
+                        }
+                    }
+                }
+            },
+            '404': {
+                'description': '올바르지 않은 조회',
+                'schema': ResponseModel,
+                'examples': {
+                    'application/json': {
+                        'code': 404,
+                        'message': '올바르지 않은 토큰입니다.'
+                    }
+                }
+            }
+        }  
+    })
+    def get(self):
+        args = token_parser.parse_args()
+        user = decode_token(args['token'])
+        if user:
+            return {
+                'code': 200,
+                'message': '토큰 조회 성공',
+                'data': {
+                    'user': {
+                        'id': user.id,
+                        'user_id': user.user_id,
+                        'name': user.name,
+                        'email': user.email,
+                        'phone': user.phone,
+                        'type': user.type,
+                        'latitude': float(user.latitude),
+                        'longitude': float(user.longitude),
+                        'address': user.address
+                    }
+                }
+            }, 200
+        return {
+            'code': 404,
+            'message': '올바르지 않은 토큰입니다.'
+        }, 404
+
     @swagger.doc({
         'tags': ['user'],
         'description': '로그인',
@@ -96,17 +173,15 @@ class Auth(Resource):
                         },
                         'token': encode_token(user)
                     }
-                }, 200
-            else:
-                return {
-                    'code': 400,
-                    'message': '비밀번호가 올바르지 않습니다.'
-                }, 400
-        else:
+                }, 200           
             return {
                 'code': 400,
-                'message': '아이디가 존재하지 않습니다.'
+                'message': '비밀번호가 옳바르지 않습니다.'
             }, 400
+        return {
+              'code': 400,
+              'message': '아이디가 존재하지 않습니다.'
+        },400
 
     @swagger.doc({
         'tags': ['user'],
