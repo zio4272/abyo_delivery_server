@@ -84,6 +84,11 @@ class Auth(Resource):
         args = token_parser.parse_args()
         user = decode_token(args['token'])
         if user:
+            if user.banned:
+                return {
+                    'code': 403,
+                    'message': '정지된 유저 입니다.'
+                }
             return {
                 'code': 200,
                 'message': '토큰 조회 성공',
@@ -156,6 +161,11 @@ class Auth(Resource):
         user = Users.query.filter_by(user_id=args['user_id']).first()
         if user is not None:
             if user.verify_password(args['password']):
+                if  user.banned:
+                    return {
+                        'code': 403,
+                        'message': '정지된 유저입니다.'
+                    }
                 return {
                     'code': 200,
                     'message': '로그인 성공',
