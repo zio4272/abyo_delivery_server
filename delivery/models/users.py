@@ -26,7 +26,7 @@ class Users(db.Model):
     profile_image_key = db.Column(db.String(320), nullable=True)
 
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
-    
+    contracts = db.relationship('OrderContracts', backref='users', lazy=True)
     banned = db.relationship('BannedUsers', backref='users', lazy=True)
     serial = db.relationship('UserSerials', backref='users', lazy=True)
    

@@ -8,7 +8,7 @@ class Orders(db.Model):
 
 
     id = db.Column(db.Integer, primary_key=True)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'), nullable=False)
     
     price = db.Column(db.Integer, nullable=False)
     # 1 : CASH
@@ -37,16 +37,16 @@ class Orders(db.Model):
     def get_order_object(self, include_owner_info=False):
         order = {
             'order_id': self.id,
-            'own'
-            'destination': self.address,
+            'owner_id': self.owner_id,
+            'price': self.price,
+            'waiting_time': self.waiting_time,
+            'delivery_amount': self.delivery_amount,
+            'transport_type': self.owner_id,
+            'address': self.address,
+            'address_detail': self.address_detail,
             'latitude': float(self.latitude) if self.latitude else None,
             'longitude': float(self.longitude) if self.latitude else None,
-            'amount': self.amount,
-            'unit_price': self.unit_price,
-            'weight': self.weight,
-            'COD_amount': self.COD_amount,
-            'expected_arrival_time': str(self.expected_arrival_time),
-            'requirements': self.requirements,
+            'customer_call': self.owner_id,
             'created_at': str(self.created_at)
         }
 
